@@ -1,0 +1,3 @@
+/home/roit/datasets/depth_out/mc_test_out
+/home/roit/datasets/depth_out/eigen_test_out
+/home/roit/datasets/depth_out/mc_gt

@@ -1,0 +1,167 @@
+__author__ = 'vfdev'
+
+# Python
+import argparse
+import os, sys
+import shutil
+import subprocess
+import json
+from path import Path
+
+# Opencv
+import cv2
+
+parser = argparse.ArgumentParser(description="Video2Frames converter")
+parser.add_argument('--input', default='./videos/test_depth.mp4', help="Input video file")
+parser.add_argument('--output', default=None, help="Output folder. If exists it will be removed")
+parser.add_argument('--maxframes', type=int, default=None, help="Output max number of frames")
+parser.add_argument('--rotate', type=int, default=0, choices={0,90, 180, 270}, help="Rotate clock-wise output frames")
+parser.add_argument('--exifmodel', default=None, help="An example photo file to fill output meta-tags")
+parser.add_argument('--verbose', default=True, action='store_true', help="Enable verbose")
+
+args = parser.parse_args()
+
+def main():
+    global args
+
+
+    #io check
+    root = Path(args.input)
+
+
+    in_path = Path(args.input)
+    if not in_path.exists():
+        parser.error("Input video file is not found")
+        return 1
+    if args.output:
+        out_path = Path(args.output)
+    else:
+        out_path = Path(in_path.stem)
+
+    out_path.makedirs_p()  # without exception 'already exist'
+
+
+
+
+
+
+    cap = cv2.VideoCapture()
+    cap.open(args.input)
+    if not cap.isOpened():
+        parser.error("Failed to open input video")
+        return 1
+
+    frameCount = cap.get(cv2.CAP_PROP_FRAME_COUNT)#视频最大能切分几张
+
+    if args.verbose:
+        print(frameCount)
+    maxframes = args.maxframes
+    skipDelta = 0
+
+    if args.maxframes and frameCount > maxframes:#跳帧决定
+        skipDelta =int(frameCount / maxframes)#乡下取证
+        if args.verbose:
+            print("Video has {fc}, but maxframes is set to {mf}".format(fc=frameCount, mf=maxframes))
+            print("Skip frames delta is {d}".format(d=skipDelta))
+    else:
+        skipDelta = 1
+
+    frameId = 0
+    # rotateAngle
+    rotateAngle = args.rotate if args.rotate else 0
+
+    if rotateAngle > 0 and args.verbose:
+        print("Rotate output frames on {deg} clock-wise".format(deg=rotateAngle))
+
+    #exif_model
+    exif_model=None
+    if args.exifmodel:
+        if not os.path.exists(args.exifmodel):
+            parser.error("Exif model file '{f}' is not found".format(f=args.exifmodel))
+            return 2
+        if args.verbose:
+            print("Use exif model from file : {f}".format(f=args.exifmodel))
+        ret = subprocess.Popen(['exiftool', '-j', os.path.abspath(args.exifmodel)],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = ret.communicate()
+        if args.verbose:
+            print("exiftool stdout : ", out)
+        try:
+            exif_model = json.loads(out)[0]
+        except ValueError:
+            parser.error("Exif model file can not be decoded")
+            return 2
+    #main cycle
+    #while frameId < frameCount:
+    f_cnt = 1#output num of frames
+    while frameId < frameCount :
+        ret, frame = cap.read()
+        # print frameId, ret, frame.shape
+        if not ret:
+            print("Failed to get the frame {f}".format(f=frameId))
+            continue
+
+        # Rotate if needed:
+        if rotateAngle > 0:
+            if rotateAngle == 90:
+                frame = cv2.transpose(frame)
+                frame = cv2.flip(frame, 1)
+            elif rotateAngle == 180:
+                frame = cv2.flip(frame, -1)
+            elif rotateAngle == 270:
+                frame = cv2.transpose(frame)
+                frame = cv2.flip(frame, 0)
+
+        ofname = out_path/'{:0>5}.jpg'.format(f_cnt)#补零操作
+        ret = cv2.imwrite(ofname, frame)
+        if not ret:
+            print("Failed to write the frame {f}".format(f=frameId))
+            continue
+
+        frameId += int(skipDelta)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frameId)
+        f_cnt += 1
+
+
+    #post precess
+    if exif_model:
+        fields = ['Model', 'Make', 'FocalLength']
+        if not write_exif_model(os.path.abspath(out_path), exif_model, fields):
+            print("Failed to write tags to the frames")
+        # check on the first file
+        fname = os.path.join(os.path.abspath(out_path), 'frame_0.jpg')
+        cmd = ['exiftool', '-j', fname]
+        for field in fields:
+            cmd.append('-' + field)
+        ret = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = ret.communicate()
+        if args.verbose:
+            print("exiftool stdout : ", out)
+        try:
+            result = json.loads(out)[0]
+            for field in fields:
+                if field not in result:
+                    parser.error("Exif model is not written to the output frames")
+                    return 3
+        except ValueError:
+            parser.error("Output frame exif info can not be decoded")
+            return 2
+
+    return 0
+
+
+def write_exif_model(folder_path, model, fields=None):
+    cmd = ['exiftool', '-overwrite_original', '-r']
+    for field in fields:
+        if field in model:
+            cmd.append('-' + field + "=" + model[field])
+    cmd.append(folder_path)
+    ret = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = ret.communicate()
+    return ret.returncode == 0 and len(err) == 0
+
+
+if __name__ == "__main__":
+    print("Start Video2Frames script ...")
+    ret = main()
+    exit(ret)

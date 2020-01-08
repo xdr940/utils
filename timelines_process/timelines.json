@@ -1,0 +1,75 @@
+{
+	"T1": [{
+		"keyframes": [{
+			"time": 0,
+			"properties": {
+				"timestamp": 5000
+			}
+		}, {
+			"time": 5000,
+			"properties": {
+				"timestamp": 5000
+			}
+		}, {
+			"time": 10000,
+			"properties": {
+				"timestamp": 10000
+			}
+		}, {
+			"time": 15000,
+			"properties": {
+				"timestamp": 15000
+			}
+		}, {
+			"time": 20000,
+			"properties": {
+				"timestamp": 20000
+			}
+		}],
+		"segments": [0, 0, 0, 0],
+		"interpolators": [{
+			"type": "linear",
+			"properties": ["timestamp"]
+		}]
+	}, {
+		"keyframes": [{
+			"time": 0,
+			"properties": {
+				"camera:position": [768.3835340322883, 116.92137437206995, -27.26221995772862],
+				"camera:rotation": [92.999985, 15.000003, 0.0]
+			}
+		}, {
+			"time": 5000,
+			"properties": {
+				"camera:position": [682.20893, 97.83906, -66.08684],
+				"camera:rotation": [17.99993, 6.3, -16.0]
+			}
+		}, {
+			"time": 10000,
+			"properties": {
+				"camera:position": [604.82159, 91.898, -64.93122],
+				"camera:rotation": [161.09987, 15.6, 30.0]
+			}
+		}, {
+			"time": 15000,
+			"properties": {
+				"camera:position": [557.78284, 111.79323, -49.86031],
+				"camera:rotation": [77.09981, 65.10002, 0.0]
+			}
+		}, {
+			"time": 20000,
+			"properties": {
+				"camera:position": [462.81955, 103.2591, -58.38853],
+				"camera:rotation": [-51.60023, 14.85001, 0.0]
+			}
+		}],
+		"segments": [0, 0, 0, 0],
+		"interpolators": [{
+			"type": {
+				"type": "catmull-rom-spline",
+				"alpha": 0.5
+			},
+			"properties": ["camera:position", "camera:rotation"]
+		}]
+	}]
+}
