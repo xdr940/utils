@@ -63,10 +63,34 @@ def json2txt(p):
 
     return  out_ps
 
+def format_js(p):
+    dict = readjson(p)
+    print('format timelines')
+    for key in dict.keys():
+        if key!='':
+            i =0
+            slices =  dict[key][0]['keyframes']
+            for slice in slices:#
+                slice['time'] = i*5000
+                slice['properties']['timestamp'] = i*5000
+                i+=1
+                pass
+            slices = dict[key][1]['keyframes']
+            i=0
+            for slice in slices:  #
+                slice['time'] = i * 5000
+                slice['properties']['timestamp'] = i*5000
+                i += 1
+                pass
+    f =Path('format.json')
 
+    with open('format.json','w') as fp:
+        json.dump(dict,fp)
+    pass
 
 
 if  __name__ == '__main__':
-    json2txt('./timelines.json')
+    format_js('./timelines3.json')
+    #json2txt('./timelines3.json')
 
 
