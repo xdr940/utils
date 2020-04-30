@@ -3,10 +3,15 @@ from path import Path
 
 
 def writelines(frames,path):
+    titles = ['time','pitch','roll','yaw','x','y','z']
     with open(path,'w') as f:
-        f.writelines('#'+str(list(frames[0].keys()))[1:-1])
+        #f.writelines('#'+str(list(frames[0].keys()))[1:-1])
+        f.writelines('#'+str(titles)[1:-1]+' \n')
         for item in frames:
-            f.writelines('\n'+str(list(item.values()))[1:-1])#dic 2 list 2 str
+            line =[]
+            for  sub_title in titles:
+                line.append(item[sub_title])
+            f.writelines(str(line)[1:-1]+' \n')#dic 2 list 2 str
 
 
 
@@ -54,7 +59,9 @@ def json2txt(p):
     print('generate trajectory:')
     for key in dict.keys():
         #print(key)
-        out_p = key+'.txt'
+        if key=='':
+            continue
+        out_p =p.stem +'_'+ key+'.txt'
         path_ls = read_path(dict[key])
         writelines(path_ls,out_p)
         paths_list.append(path_ls)
@@ -90,7 +97,8 @@ def format_js(p):
 
 
 if  __name__ == '__main__':
-    format_js('./timelines3.json')
-    #json2txt('./timelines3.json')
+    timelines = Path('./02_02.json')
+    format_js(timelines)
+    #json2txt(timelines)
 
 

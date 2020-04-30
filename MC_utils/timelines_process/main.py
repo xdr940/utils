@@ -178,7 +178,7 @@ def interpolaration(path):
 
 def main():
     IsDraw = True
-    p = Path('./timelines.json')
+    p = Path('./02_00.json')
     f0s = json2txt(p)
     cnt =1
     trajectories = []
