@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from math import *
-from read_timelines import  json2txt
+from format_js import  json2txt
 from  matplotlib.colors import  BoundaryNorm
 from  random import random
 import matplotlib as mpl

@@ -1,6 +1,9 @@
 import json
 from path import Path
-
+import argparse
+parser =argparse.ArgumentParser('None')
+parser.add_argument('--file',type=str,default='./timelines.json')
+args= parser.parse_args()
 
 def writelines(frames,path):
     titles = ['time','pitch','roll','yaw','x','y','z']
@@ -97,7 +100,8 @@ def format_js(p):
 
 
 if  __name__ == '__main__':
-    timelines = Path('./02_02.json')
+
+    timelines = Path(args.file)
     format_js(timelines)
     #json2txt(timelines)
 
