@@ -62,21 +62,20 @@ def json2txt(p):
     print('generate trajectory:')
     for key in dict.keys():
         #print(key)
-        if key=='':
-            continue
         out_p =p.stem +'_'+ key+'.txt'
         path_ls = read_path(dict[key])
         writelines(path_ls,out_p)
         paths_list.append(path_ls)
         print(out_p)
         out_ps.append(out_p)
-
+    dict.pop('')
     return  out_ps
 
 def format_js(p):
     dict = readjson(p)
     print('format timelines')
     for key in dict.keys():
+#        dict.pop('')
         if key!='':
             i =0
             slices =  dict[key][0]['keyframes']
@@ -92,6 +91,7 @@ def format_js(p):
                 slice['properties']['timestamp'] = i*5000
                 i += 1
                 pass
+    dict.pop('')
     f =Path('format.json')
 
     with open('format.json','w') as fp:
@@ -103,6 +103,7 @@ if  __name__ == '__main__':
 
     timelines = Path(args.file)
     format_js(timelines)
+    print('ok')
     #json2txt(timelines)
 
 
