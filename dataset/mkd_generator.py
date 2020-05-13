@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser(description="Monodepthv2 options")
 
 parser.add_argument("--dirs",
                     help="sub dirs processed",
-                    default="/home/roit/datasets/kitti/2011_10_03")
+                    default="/home/roit/datasets/kitti/2011_09_30")
 opt = parser.parse_args()
 
 
