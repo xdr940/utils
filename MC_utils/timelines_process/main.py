@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from math import *
-from read_timelines import  json2txt
+from format_js import  json2txt
 from  matplotlib.colors import  BoundaryNorm
 from  random import random
 import matplotlib as mpl
@@ -178,7 +178,7 @@ def interpolaration(path):
 
 def main():
     IsDraw = True
-    p = Path('./timelines.json')
+    p = Path('./02_00.json')
     f0s = json2txt(p)
     cnt =1
     trajectories = []

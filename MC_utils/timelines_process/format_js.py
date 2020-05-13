@@ -1,12 +1,20 @@
 import json
 from path import Path
-
+import argparse
+parser =argparse.ArgumentParser('None')
+parser.add_argument('--file',type=str,default='./timelines.json')
+args= parser.parse_args()
 
 def writelines(frames,path):
+    titles = ['time','pitch','roll','yaw','x','y','z']
     with open(path,'w') as f:
-        f.writelines('#'+str(list(frames[0].keys()))[1:-1])
+        #f.writelines('#'+str(list(frames[0].keys()))[1:-1])
+        f.writelines('#'+str(titles)[1:-1]+' \n')
         for item in frames:
-            f.writelines('\n'+str(list(item.values()))[1:-1])#dic 2 list 2 str
+            line =[]
+            for  sub_title in titles:
+                line.append(item[sub_title])
+            f.writelines(str(line)[1:-1]+' \n')#dic 2 list 2 str
 
 
 
@@ -54,19 +62,48 @@ def json2txt(p):
     print('generate trajectory:')
     for key in dict.keys():
         #print(key)
-        out_p = key+'.txt'
+        out_p =p.stem +'_'+ key+'.txt'
         path_ls = read_path(dict[key])
         writelines(path_ls,out_p)
         paths_list.append(path_ls)
         print(out_p)
         out_ps.append(out_p)
-
+    dict.pop('')
     return  out_ps
 
+def format_js(p):
+    dict = readjson(p)
+    print('format timelines')
+    for key in dict.keys():
+#        dict.pop('')
+        if key!='':
+            i =0
+            slices =  dict[key][0]['keyframes']
+            for slice in slices:#
+                slice['time'] = i*5000
+                slice['properties']['timestamp'] = i*5000
+                i+=1
+                pass
+            slices = dict[key][1]['keyframes']
+            i=0
+            for slice in slices:  #
+                slice['time'] = i * 5000
+                slice['properties']['timestamp'] = i*5000
+                i += 1
+                pass
+    dict.pop('')
+    f =Path('format.json')
 
+    with open('format.json','w') as fp:
+        json.dump(dict,fp)
+    pass
 
 
 if  __name__ == '__main__':
-    json2txt('./timelines.json')
+
+    timelines = Path(args.file)
+    format_js(timelines)
+    print('ok')
+    #json2txt(timelines)
 
 
