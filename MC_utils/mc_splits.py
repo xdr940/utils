@@ -10,10 +10,25 @@
 
 
 '''
-from opts import parse_args_generate_splits as parse_args
 from path import Path
-import path
 from random import random
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Simple testing funtion for Monodepthv2 models.')
+
+    parser.add_argument('--dataset_path', type=str,default='/home/roit/datasets/MC',help='path to a test image or folder of images')
+    parser.add_argument("--txt_style",default='mc',choices=['mc','visdrone'])
+    parser.add_argument('--out_path', type=str,default=None,help='path to a test image or folder of images')
+    parser.add_argument("--num",default=100,type=str)
+    parser.add_argument("--proportion",default=[0.7,0.2,0.1],help="train, val, test")
+    parser.add_argument("--out_name",default=None)
+
+    return parser.parse_args()
+
+
 def writelines(list,path):
     lenth = len(list)
     with open(path,'w') as f:
@@ -91,7 +106,6 @@ def generate_mc(args):
     writelines(total_list[val_bound:test_bound],test_txt_p)
 
 
-    print('ok')
 
 
 
