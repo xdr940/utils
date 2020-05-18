@@ -1,9 +1,18 @@
 
 #generate texte.file
+'''
+    MC# od0
+        0000#blocks od1
+            00#path od2
+                color
+                depth
+        0001
+
+
+'''
 from opts import parse_args_generate_splits as parse_args
 from path import Path
 from random import random
-import os
 def writelines(list,path):
     lenth = len(list)
     with open(path,'w') as f:
@@ -34,7 +43,7 @@ def generate_mc(args):
 
     file_path = Path(args.dataset_path)
 
-    out_dir = Path(args.txt_style + "_splits")
+    out_dir = Path("mc_splits")
     out_dir.mkdir_p()
     train_txt_p = out_dir/'train_files.txt'
     val_txt_p = out_dir/'val_files.txt'
@@ -45,21 +54,16 @@ def generate_mc(args):
 
     return_list=[]
     i = 0
-    if args.txt_style =='mc':
-        dirs = file_path.dirs()
-        dirs.sort()
-    elif args.txt_style == 'visdrone':
-        dirs = (file_path / 'sequences').dirs()
+
+    dirs = file_path.dirs()
+    dirs.sort()
 
     while(i<args.num):
 
         sq_idx = int(random()*len(dirs))
 
         s = dirs[sq_idx].stem+' '
-        if args.txt_style=='mc':
-            frames = (dirs[sq_idx]/'img').files()
-        elif args.txt_style == 'visdrone':
-            frames = dirs[sq_idx].files()
+        frames = (dirs[sq_idx]/'color').files()
         frames.sort()
         frame_idx = int(random()*len(frames))
         # 为了前一阵后一阵都能取到

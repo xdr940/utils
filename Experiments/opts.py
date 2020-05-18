@@ -10,7 +10,7 @@ def parse_args_generate_splits():
     parser.add_argument('--dataset_path', type=str,default='/home/roit/datasets/MC',help='path to a test image or folder of images')
     parser.add_argument("--txt_style",default='mc',choices=['mc','visdrone'])
     parser.add_argument('--out_path', type=str,default=None,help='path to a test image or folder of images')
-    parser.add_argument("--num",default=600,type=str)
+    parser.add_argument("--num",default=100,type=str)
     parser.add_argument("--proportion",default=[0.7,0.2,0.1],help="train, val, test")
     parser.add_argument("--out_name",default=None)
 
