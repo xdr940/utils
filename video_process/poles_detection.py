@@ -16,7 +16,7 @@ kernel_ = np.array([0, 0, 0,
 from utils import pltshow,rectify,zoom
 def main():
     pass
-    path = Path('./poles/19.png')
+    path = Path('./poles/10.png')
     img = cv2.imread(path)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     #img = cv2.GaussianBlur(img, (7, 7), 0)
@@ -45,49 +45,34 @@ def main():
 
 
     img_l = cv2.filter2D(src=img, kernel=left, ddepth=-2)
-    img_l=rectify(img_l)
+    img_l[img_l<1]=0
+
+    #img_l=rectify(img_l)
 
     img_r = cv2.filter2D(src=img, kernel=right, ddepth=-2)
-
-    img_lr = cv2.filter2D(src=img_l, kernel=right, ddepth=-2)
-    img_rl = cv2.filter2D(src=img_r, kernel=left, ddepth=-2)
-
-    img_ll = cv2.filter2D(src=img_l, kernel=left, ddepth=-2)
-    img_rr = cv2.filter2D(src=img_r, kernel=right, ddepth=-2)
-
-
-
-
-    max_l = img_l.max()
-    img_l[img_l<max_l]=0
-
-    max_r = img_r.max()
-    img_r[img_r < max_r] = 0
-
-    img_rr[img_rr>0]=1
-    img_ll[img_ll>0]=1
+    img_r[img_r < 1] = 0
 
 
     #[22:115,513:528]
 
     combined = img_l+img_r
     combined[combined>0]=1
-    combined2 = img_ll+img_rr
-    combined2[combined2>0]=1
+    #combined2 = img_ll+img_rr
+    #combined2[combined2>0]=1
 
-    combined = cv2.dilate(combined, kernel_, iterations=2)
-    combined = cv2.erode(combined, kernel, iterations=2)
+    combined = cv2.dilate(combined, kernel_, iterations=1)
+    combined = cv2.erode(combined, kernel, iterations=1)
     last = combined + src
     last[last > 0] = 1
 
     shows = [
         src,
-        #img,
-        #img_l,
-        #img_r,
+        img,
+        img_l,
+        img_r,
         #img_lr,
         #img_rl,
-        #combined,
+        combined,
         last
     ]
 

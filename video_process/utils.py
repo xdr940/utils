@@ -32,14 +32,15 @@ def rectify(img):
                      0, 1, 0,
                      0, 1, 0]).reshape([3, 3]).astype(np.uint8)
 
-    img = cv2.dilate(img, kernel, iterations=4)
+    img = cv2.dilate(img, kernel, iterations=3)
 
-    img = cv2.erode(img, kernel, iterations=4)
+    img = cv2.erode(img, kernel, iterations=3)
 
     return img
 
 def zoom(list):
     x1,x2,y1,y2 = 0,20,247,260
+    x1,x2,y1,y2 =[20, 115, 513, 528]
     ret_list=[]
     for item in list:
         ret_list.append(item[x1:x2,y1:y2])
