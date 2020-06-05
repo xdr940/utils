@@ -10,10 +10,12 @@ def parse_args():
         description='Simple testing funtion for Monodepthv2 models.')
 
     parser.add_argument('--dataset_path', type=str,default='/home/roit/datasets/VisDrone2',help='path to a test image or folder of images')
-    parser.add_argument("--splits",default='visdrone_lite',choices=['visdrone_lite','visdrone_lite'])
+    parser.add_argument("--splits",default='visdrone_lite_full',help='output_dir')
     parser.add_argument('--out_path', type=str,default=None,help='path to a test image or folder of images')
     parser.add_argument("--num",default=None,type=str)
-    parser.add_argument("--proportion",default=[0.0010,0.0002,0.0001],help="train, val, test")
+    parser.add_argument("--proportion",default=[0.16,0.016,0.004],help="train, val, test")
+    parser.add_argument("--frame_ids",default=[-3,0,3],help="frame interval settings")
+
     parser.add_argument("--out_name",default=None)
 
     return parser.parse_args()
@@ -34,7 +36,7 @@ def readlines(filename):
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
     return lines
-def generate_mc(args):
+def generate_vsd(args):
     '''
 
     :param args:
@@ -58,11 +60,12 @@ def generate_mc(args):
     sequences.sort()#
     real_list=[]#
 
-
+    if args.frame_ids[0] +args.frame_ids[-1]==0:
+        start_end = int(abs(args.frame_ids[0]))
     for item in tqdm(sequences):
         files = item.files()
         files.sort()
-        real_list+=files[1:-1]
+        real_list+=files#[start_end:-start_end]
 
     rel_list = []
     for item in tqdm(real_list):
@@ -99,4 +102,4 @@ def generate_mc(args):
 
 if  __name__ == '__main__':
     options = parse_args()
-    generate_mc(options)
+    generate_vsd(options)
