@@ -88,7 +88,7 @@ def draw(position,rotation):
 
     c = np.ones([200,4])
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=[8,5])
     ax = fig.gca(projection='3d')
     ax.set_aspect('equal', adjustable='box')
     # ax.yaxis.set_ticks_position('top')
@@ -97,7 +97,7 @@ def draw(position,rotation):
     ax.set_ylabel('z')  # yz交换
     ax.set_zlabel('y')  #
     plt.axis('equal')
-    plt.title('trajectory 80_00_1')
+    #plt.title('trajectory 80_00_1')
     mycmap = plt.get_cmap('hsv', 100)
     mynorm = mpl.colors.Normalize(vmin=-180, vmax=180)
 
@@ -111,11 +111,12 @@ def draw(position,rotation):
     #绘制箭头
     while i< position.shape[0]:
         if i%5==0:
+            #划黑线
             ax.plot(position[:i, 0], position[:i, 2], position[:i, 1], 'k-')
 
             ax.quiver(position[i, 0], position[i, 2], position[i, 1],
                   orient_vec[i, 0], orient_vec[i, 2], orient_vec[i, 1],
-                  color = mycmap(roll[i]),norm = mynorm)
+                  color = mycmap(roll[i]),norm = mynorm,length=3)
         i+=1
 
 

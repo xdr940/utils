@@ -19,8 +19,8 @@ def parse_opt():
     parser.add_argument("--proportion",default=[0.9,0.05,0.05],help="train, val, test")
     parser.add_argument("--num_workers",default=12)
     parser.add_argument("--batch_size",default=48)
-    parser.add_argument("--photometric_threshold",default=0.1)
-    parser.add_argument('--frame_idxs',default=[-2,0,2],help="frame interval settings")#由于有photometric err 控制了, 所以可以将frame interval 减小
+    parser.add_argument("--photometric_threshold",default=0.12)
+    parser.add_argument('--frame_idxs',default=[-3,0,3],help="frame interval settings")#由于有photometric err 控制了, 所以可以将frame interval 减小
     parser.add_argument("--photometric_err_dir",default='./photometric_err')
     parser.add_argument("--ext",default='.jpg')
 
@@ -99,6 +99,7 @@ def VsdSeqSelect(opt):
     :param opt:
     :return:
     '''
+    shows=True
     [train_, val_, test_] = opt.proportion
 
     if train_ + val_ + test_ - 1. > 0.01:  # delta
@@ -126,6 +127,18 @@ def VsdSeqSelect(opt):
 
         ls = list(npy_bool)
         photometric_errs.append(ls)
+
+    if shows:
+        ids = [0,20,40]
+        legends = [npys_p[id].stem for id in ids]
+        curvs = [npys[id] for id in ids]
+        for curv in curvs:
+            plt.plot(curv)
+        plt.legend(legends,fontsize=10)
+        plt.xlabel('frame_num',fontsize=10)
+        plt.ylabel('photometric error/ rho',fontsize=10)
+        plt.plot(0.15*np.ones([1000]),'r-.')
+        plt.plot(0.3*np.ones([1000]),'b-.')
 
 
     dataset_path = Path(opt.dataset_path)

@@ -68,7 +68,8 @@ def json2txt(p):
         paths_list.append(path_ls)
         print(out_p)
         out_ps.append(out_p)
-    dict.pop('')
+    if ''in dict.keys():
+        dict.pop('')
     return  out_ps
 
 def format_js(p):
