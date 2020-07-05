@@ -24,10 +24,10 @@ def main():
 	#in_path = '/home/roit/datasets/visdrone_raw_256512/uav0000023_00870_s'
 	#in_path = '/home/roit/datasets/MC_hv_distr_map/test_hv_basline/test_depth/depths'
 	#in_path = '/home/roit/datasets/MC_hv_distr_map/test_hv_basline/concat'
-	in_path = './uav100'
+	in_path = '/home/roit/datasets/MC/0047/p1/color'
 	in_path = Path(in_path)
 
-	saveGif(start_frame=0, end_frame=10, gif_speed = 30, folderName = in_path, filename = in_path.stem+".mp4")
+	saveGif(start_frame=0, end_frame=10, gif_speed = 30, folderName = in_path, filename = in_path.stem+".gif")
 	print('ok')
 
 

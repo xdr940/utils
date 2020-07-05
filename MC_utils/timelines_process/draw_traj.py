@@ -1,7 +1,7 @@
 
 import numpy as np
 from utils import load_poses_from_txt,matrix2dof
-
+from path import Path
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import axes3d
 from mpl_toolkits.mplot3d import Axes3D
@@ -12,11 +12,19 @@ import matplotlib.pyplot as plt
 from math import pi,cos,sin
 import argparse
 parser = argparse.ArgumentParser(description='KITTI evaluation')
-parser.add_argument("--input_json",
-                    default="./timelines.json"
+parser.add_argument("--input",
+                    help="as kitti formate that 12 dof",
+                    default="./0807_poses/p1_.txt"
                     )
+parser.add_argument("--output_style",
+                    default='dynamic_draw_6dof',
+                    choices=['draw_2dof',
+                             'draw_3dof',
+                             'draw_6dof',
+                             'dynamic_draw_6dof'])
+parser.add_argument("--azim_elev",default=[ -171,40  ])
 parser.add_argument("--out_dir",default='out_dir')
-parser.add_argument('--interval_dynamic_draw',default=5)
+parser.add_argument('--interval_6dof',default=3)
 
 args = parser.parse_args()
 
@@ -72,10 +80,11 @@ def deg2vec(pitch,yaw):
 
 def draw_6dof(poses_6dof):#poses_6dof
     poses_np = np.array(poses_6dof)#200,6
+    print('points_num:',poses_np.shape[0])
     roll = poses_np[:,2]
     roll =roll/360 +0.5 #[-180,180]-->[0,1] for colormap 处理
 
-    position = poses_np[:,2:]#xyz
+    position = poses_np[:,3:]#xyz
     orient_vec=[]
     for item in poses_6dof:
         orient_vec.append(deg2vec(item[0], item[1]))
@@ -90,6 +99,7 @@ def draw_6dof(poses_6dof):#poses_6dof
     ax.set_xlabel('X')  # X不变
     ax.set_ylabel('z')  # yz交换
     ax.set_zlabel('y')  #
+    ax.azim,ax.elev = args.azim_elev
     plt.axis('equal')
     # plt.title('trajectory 80_00_1')
     mycmap = plt.get_cmap('hsv', 100)
@@ -103,7 +113,7 @@ def draw_6dof(poses_6dof):#poses_6dof
     i = 0
     # 绘制箭头
     while i < position.shape[0]:
-        if i % 5 == 0:
+        if i % args.interval_6dof == 0:
             # 划黑线
             ax.plot(position[:i, 0], position[:i, 2], position[:i, 1], 'k-')
 
@@ -192,12 +202,11 @@ def dynamic_draw_6dof(poses_6dof):
         return fig, ax
 
 
-    interval = args.interval_dynamic_draw
     #减少点数
     poses_6dof_sub = []
     cnt=0
     for pose in poses_6dof:
-        if cnt%interval==0:
+        if cnt%args.interval_6dof==0:
             poses_6dof_sub.append(pose)
         cnt+=1
     poses_6dof = poses_6dof_sub
@@ -210,7 +219,7 @@ def dynamic_draw_6dof(poses_6dof):
         roll.append(item[2])
     # draw
 
-    position = poses_6dof_np[:,2:]
+    position = poses_6dof_np[:,3:]
     orient_vec = np.array(orient_vec)
     roll = np.array(roll)
     # roll =(roll - roll.min())/(roll.max() - roll.min())
@@ -225,8 +234,10 @@ def dynamic_draw_6dof(poses_6dof):
     ax.set_xlabel('X')  # X不变
     ax.set_ylabel('z')  # yz交换
     ax.set_zlabel('y')  #
-    plt.axis('equal')
 
+    plt.axis('equal')
+    #视角改变
+    ax.azim,ax.elev = args.azim_elev
     ax.scatter(position[0, 0], position[0, 2], position[0, 1], c='r')  # 起点绿色
     ax.scatter(position[-1, 0], position[-1, 2], position[-1, 1], c='g')  # 终点黄色
     plt.title('Aircraft Ego-motion')
@@ -236,8 +247,9 @@ def dynamic_draw_6dof(poses_6dof):
 
 
     #save
-    anim = FuncAnimation(fig, update, frames=range(0, position.shape[0]), interval=175)
-    anim.save('./line.gif', dpi=80, writer='imagemagick')
+    anim = FuncAnimation(fig, update, frames=range(0, position.shape[0]), interval=100)
+    same_name = Path(args.input).relpath('./').strip('.txt').replace('/','_')+'.mp4'
+    anim.save(same_name, dpi=80, writer='imagemagick')
 
 
     pass
@@ -253,9 +265,16 @@ def add_draw(fliename):
 
 
 if __name__ == '__main__':
-    poses = load_poses_from_txt('./out_dir/p1_.txt')
+    poses = load_poses_from_txt(args.input)
     poses_6dof = matrix2dof(poses)
-    #draw
-    draw_2dof(poses_6dof)
-    #draw_6dof(poses_6dof)
-    #dynamic_draw_6dof(poses_6dof)
+
+    if args.output_style=='draw_2dof':
+        draw_2dof(poses_6dof)
+    elif args.output_style == 'draw_3dof':
+        draw_3dof(poses_6dof)
+    elif args.output_style == 'draw_6dof':
+        draw_6dof(poses_6dof)
+    elif args.output_style == 'dynamic_draw_6dof':
+        dynamic_draw_6dof(poses_6dof)
+
+

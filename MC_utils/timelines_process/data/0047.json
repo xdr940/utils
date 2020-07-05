@@ -1,0 +1,330 @@
+{
+    "p1": [
+        {
+            "keyframes": [
+                {
+                    "time": 0,
+                    "properties": {
+                        "timestamp": 0
+                    }
+                },
+                {
+                    "time": 5000,
+                    "properties": {
+                        "timestamp": 5000
+                    }
+                },
+                {
+                    "time": 10000,
+                    "properties": {
+                        "timestamp": 10000
+                    }
+                },
+                {
+                    "time": 15000,
+                    "properties": {
+                        "timestamp": 15000
+                    }
+                },
+                {
+                    "time": 20000,
+                    "properties": {
+                        "timestamp": 20000
+                    }
+                },
+                {
+                    "time": 25000,
+                    "properties": {
+                        "timestamp": 25000
+                    }
+                }
+            ],
+            "segments": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "interpolators": [
+                {
+                    "type": "linear",
+                    "properties": [
+                        "timestamp"
+                    ]
+                }
+            ]
+        },
+        {
+            "keyframes": [
+                {
+                    "time": 0,
+                    "properties": {
+                        "camera:position": [
+                            404.6524296317862,
+                            98.96395790585592,
+                            -594.4393169794957
+                        ],
+                        "camera:rotation": [
+                            -39.600002,
+                            9.000002,
+                            0.0
+                        ],
+                        "timestamp": 0
+                    }
+                },
+                {
+                    "time": 5000,
+                    "properties": {
+                        "camera:position": [
+                            419.66265079367975,
+                            134.16565014287215,
+                            -420.41408410093663
+                        ],
+                        "camera:rotation": [
+                            -2.4938583e-05,
+                            25.94998,
+                            0.0
+                        ],
+                        "timestamp": 5000
+                    }
+                },
+                {
+                    "time": 10000,
+                    "properties": {
+                        "camera:position": [
+                            456.93030170923544,
+                            98.02168513845191,
+                            -262.1401245205057
+                        ],
+                        "camera:rotation": [
+                            -73.65003,
+                            7.1999707,
+                            0.0
+                        ],
+                        "timestamp": 10000
+                    }
+                },
+                {
+                    "time": 15000,
+                    "properties": {
+                        "camera:position": [
+                            701.0670439926029,
+                            145.85467544665138,
+                            -182.77053043370964
+                        ],
+                        "camera:rotation": [
+                            -218.69978,
+                            31.34991,
+                            0.0
+                        ],
+                        "timestamp": 15000
+                    }
+                },
+                {
+                    "time": 20000,
+                    "properties": {
+                        "camera:position": [
+                            603.8563790581753,
+                            258.3233161240586,
+                            -478.8991346306263
+                        ],
+                        "camera:rotation": [
+                            -315.14948,
+                            46.800076,
+                            0.0
+                        ],
+                        "timestamp": 20000
+                    }
+                },
+                {
+                    "time": 25000,
+                    "properties": {
+                        "camera:position": [
+                            440.1367996837644,
+                            91.86291383991143,
+                            -580.3383642127587
+                        ],
+                        "camera:rotation": [
+                            -245.84961,
+                            40.50003,
+                            17.0
+                        ],
+                        "timestamp": 25000
+                    }
+                }
+            ],
+            "segments": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "interpolators": [
+                {
+                    "type": {
+                        "type": "catmull-rom-spline",
+                        "alpha": 0.5
+                    },
+                    "properties": [
+                        "camera:position",
+                        "camera:rotation"
+                    ]
+                }
+            ]
+        }
+    ],
+    "p2": [
+        {
+            "keyframes": [
+                {
+                    "time": 0,
+                    "properties": {
+                        "timestamp": 0
+                    }
+                },
+                {
+                    "time": 5000,
+                    "properties": {
+                        "timestamp": 5000
+                    }
+                },
+                {
+                    "time": 10000,
+                    "properties": {
+                        "timestamp": 10000
+                    }
+                },
+                {
+                    "time": 15000,
+                    "properties": {
+                        "timestamp": 15000
+                    }
+                },
+                {
+                    "time": 20000,
+                    "properties": {
+                        "timestamp": 20000
+                    }
+                }
+            ],
+            "segments": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "interpolators": [
+                {
+                    "type": "linear",
+                    "properties": [
+                        "timestamp"
+                    ]
+                }
+            ]
+        },
+        {
+            "keyframes": [
+                {
+                    "time": 0,
+                    "properties": {
+                        "camera:position": [
+                            366.1393049980246,
+                            104.64790163410042,
+                            -609.5819724020207
+                        ],
+                        "camera:rotation": [
+                            94.35004,
+                            5.100001,
+                            0.0
+                        ],
+                        "timestamp": 0
+                    }
+                },
+                {
+                    "time": 5000,
+                    "properties": {
+                        "camera:position": [
+                            287.8852033223771,
+                            182.56220600303678,
+                            -380.26293727865175
+                        ],
+                        "camera:rotation": [
+                            -389.84964,
+                            21.449984,
+                            0.0
+                        ],
+                        "timestamp": 5000
+                    }
+                },
+                {
+                    "time": 10000,
+                    "properties": {
+                        "camera:position": [
+                            425.5827105248376,
+                            147.27454394559538,
+                            -120.90870708141026
+                        ],
+                        "camera:rotation": [
+                            -449.3994,
+                            13.349995,
+                            0.0
+                        ],
+                        "timestamp": 10000
+                    }
+                },
+                {
+                    "time": 15000,
+                    "properties": {
+                        "camera:position": [
+                            760.5556640602991,
+                            143.76430141019296,
+                            -150.56730336954155
+                        ],
+                        "camera:rotation": [
+                            -205.05025,
+                            38.700085,
+                            0.0
+                        ],
+                        "timestamp": 15000
+                    }
+                },
+                {
+                    "time": 20000,
+                    "properties": {
+                        "camera:position": [
+                            917.4857626029489,
+                            121.92229688824338,
+                            -498.6957768975146
+                        ],
+                        "camera:rotation": [
+                            -265.49963,
+                            6.900064,
+                            0.0
+                        ],
+                        "timestamp": 20000
+                    }
+                }
+            ],
+            "segments": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "interpolators": [
+                {
+                    "type": {
+                        "type": "catmull-rom-spline",
+                        "alpha": 0.5
+                    },
+                    "properties": [
+                        "camera:position",
+                        "camera:rotation"
+                    ]
+                }
+            ]
+        }
+    ]
+}

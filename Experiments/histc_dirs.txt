@@ -1,4 +1,0 @@
-/home/roit/datasets/depth_out/mc_test_out_histc/outh
-#/home/roit/datasets/depth_out/visdrone_test_out_histc/outh
-/home/roit/datasets/depth_out/eigen_test_out_histc/outh
-/home/roit/datasets/depth_out/mc_gt_histc/outh

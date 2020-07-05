@@ -7,14 +7,15 @@ import shutil
 import subprocess
 import json
 from path import Path
+import matplotlib.pyplot as plt
 
 # Opencv
 import cv2
 
 parser = argparse.ArgumentParser(description="Video2Frames converter")
-parser.add_argument('--input', default='./videos/test_depth.mp4', help="Input video file")
-parser.add_argument('--output', default=None, help="Output folder. If exists it will be removed")
-parser.add_argument('--maxframes', type=int, default=None, help="Output max number of frames")
+parser.add_argument('--input', default='/home/roit/datasets/custom_raw/raw_video.mp4', help="Input video file")
+parser.add_argument('--output', default='/home/roit/datasets/Binjiang/sequences', help="Output folder. If exists it will be removed")
+parser.add_argument('--skip',default=5)
 parser.add_argument('--rotate', type=int, default=0, choices={0,90, 180, 270}, help="Rotate clock-wise output frames")
 parser.add_argument('--exifmodel', default=None, help="An example photo file to fill output meta-tags")
 parser.add_argument('--verbose', default=True, action='store_true', help="Enable verbose")
@@ -55,16 +56,15 @@ def main():
 
     if args.verbose:
         print(frameCount)
-    maxframes = args.maxframes
-    skipDelta = 0
-
-    if args.maxframes and frameCount > maxframes:#跳帧决定
-        skipDelta =int(frameCount / maxframes)#乡下取证
-        if args.verbose:
-            print("Video has {fc}, but maxframes is set to {mf}".format(fc=frameCount, mf=maxframes))
-            print("Skip frames delta is {d}".format(d=skipDelta))
-    else:
-        skipDelta = 1
+    skipDelta = args.skip
+    #maxframes = args.maxframes
+    #if args.maxframes and frameCount > maxframes:#跳帧决定
+    #    skipDelta =int(frameCount / maxframes)#乡下取证
+    #    if args.verbose:
+    #        print("Video has {fc}, but maxframes is set to {mf}".format(fc=frameCount, mf=maxframes))
+    #        print("Skip frames delta is {d}".format(d=skipDelta))
+    #else:
+    #    skipDelta = 1
 
     frameId = 0
     # rotateAngle

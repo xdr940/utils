@@ -2,3 +2,8 @@
 __pycache__
 .idea
 *.png
+*.jpg
+*.gif
+*.avi
+*.mp4
+*.txt

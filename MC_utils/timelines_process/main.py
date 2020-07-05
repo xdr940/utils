@@ -8,15 +8,15 @@ from CatmulRom.catmul import CatmulRom
 from  math import cos,acos,sin,asin,pi
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input_json",
-                    default="./timelines.json"
+                    default="./data/0807.json"
                     )
-parser.add_argument("--out_dir",default='out_dir')
+parser.add_argument("--out_dir",default=None)
 
 
 args = parser.parse_args()
 
-
-
+#json format: yaw pitch roll x, y, z
+#_6dof formate pitch yaw roll x,y,z
 def load_poses_from_txt(filename):
     poses=[]
     with open(filename,'r') as f:
@@ -51,7 +51,7 @@ class TimeLine():
         if args.out_dir:
             self.out_dir = Path(args.out_dir)
         else:
-           self.out_dir = Path(self.input_json.stem + '_out')
+           self.out_dir = Path(self.input_json.stem + '_poses')
         self.out_dir.mkdir_p()
 
 
@@ -125,9 +125,9 @@ class TimeLine():
             # frame['no'] = i
 
             frame['time'] = path_name[1]['keyframes'][i]['time']
-            frame['pitch'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][1]
-            frame['yaw'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][0]
-            frame['roll'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][2]
+            frame['pitch'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][1]%90
+            frame['yaw'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][0]%90
+            frame['roll'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][2]%90
 
             frame['x'] = path_name[1]['keyframes'][i]['properties']['camera:position'][0]
             frame['y'] = path_name[1]['keyframes'][i]['properties']['camera:position'][1]
