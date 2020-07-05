@@ -4,7 +4,7 @@ import argparse
 parser =argparse.ArgumentParser('None')
 parser.add_argument('--file',type=str,default='./timelines.json')
 args= parser.parse_args()
-
+#对原始的json文件处理时间,windows使用
 def writelines(frames,path):
     titles = ['time','pitch','roll','yaw','x','y','z']
     with open(path,'w') as f:
@@ -52,25 +52,6 @@ def read_path(path_name):
 
     pass
 
-def json2txt(p):
-
-
-    dict = readjson(p)
-
-    paths_list = []
-    out_ps=[]
-    print('generate trajectory:')
-    for key in dict.keys():
-        #print(key)
-        out_p =p.stem +'_'+ key+'.txt'
-        path_ls = read_path(dict[key])
-        writelines(path_ls,out_p)
-        paths_list.append(path_ls)
-        print(out_p)
-        out_ps.append(out_p)
-    if ''in dict.keys():
-        dict.pop('')
-    return  out_ps
 
 def format_js(p):
     dict = readjson(p)
