@@ -8,12 +8,12 @@ import subprocess
 import json
 from path import Path
 import matplotlib.pyplot as plt
-
+from tqdm import tqdm
 # Opencv
 import cv2
 
 parser = argparse.ArgumentParser(description="Video2Frames converter")
-parser.add_argument('--input', default='/home/roit/datasets/custom_raw/raw_video.mp4', help="Input video file")
+parser.add_argument('--input', default='/home/roit/datasets/custom_raw/0003.mp4', help="Input video file")
 parser.add_argument('--output', default='/home/roit/datasets/Binjiang/sequences', help="Output folder. If exists it will be removed")
 parser.add_argument('--skip',default=5)
 parser.add_argument('--rotate', type=int, default=0, choices={0,90, 180, 270}, help="Rotate clock-wise output frames")
@@ -95,6 +95,8 @@ def main():
     #while frameId < frameCount:
     f_cnt = 1#output num of frames
     while frameId < frameCount :
+    #for frameId in tqdm(range(int(frameCount))):
+
         ret, frame = cap.read()
         # print frameId, ret, frame.shape
         if not ret:
@@ -112,7 +114,7 @@ def main():
                 frame = cv2.transpose(frame)
                 frame = cv2.flip(frame, 0)
 
-        ofname = out_path/'{:0>5}.jpg'.format(f_cnt)#补零操作
+        ofname = out_path/'{:04d}.jpg'.format(f_cnt)#补零操作
         ret = cv2.imwrite(ofname, frame)
         if not ret:
             print("Failed to write the frame {f}".format(f=frameId))

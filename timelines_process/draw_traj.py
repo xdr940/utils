@@ -14,17 +14,21 @@ import argparse
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input",
                     help="as kitti formate that 12 dof",
-                    default="./0807_poses/p1_.txt"
+                    default="./10001000_poses/p2_.txt"
                     )
 parser.add_argument("--output_style",
-                    default='dynamic_draw_6dof',
+                    default='dynamic_draw_2dof',
                     choices=['draw_2dof',
+                             'dynamic_draw_2dof',
                              'draw_3dof',
                              'draw_6dof',
                              'dynamic_draw_6dof'])
-parser.add_argument("--azim_elev",default=[ -171,40  ])
+parser.add_argument("--azim_elev",default=[ -171,40  ],help='观察视角')
 parser.add_argument("--out_dir",default='out_dir')
-parser.add_argument('--interval_6dof',default=3)
+parser.add_argument('--interval_6dof',default=5)
+parser.add_argument('--dynamic_time_interval',default=0.5)
+parser.add_argument('--quiver_lenth',default=0.02)
+parser.add_argument('--watch_matrix_file',default='./watch_matrix.txt')
 
 args = parser.parse_args()
 
@@ -119,7 +123,7 @@ def draw_6dof(poses_6dof):#poses_6dof
 
             ax.quiver(position[i, 0], position[i, 2], position[i, 1],
                       orient_vec[i, 0], orient_vec[i, 2], orient_vec[i, 1],
-                      color=mycmap(roll[i]), norm=mynorm, length=3)
+                      color=mycmap(roll[i]), norm=mynorm, length=args.quiver_lenth)
         i += 1
 
     fig, ax2 = plt.subplots(figsize=(1.5, 4))
@@ -186,7 +190,34 @@ def draw_2dof(poses_6dof):#poses_6dof
 
     plt.show()
 
+def dynamic_draw_2dof(poses_6dof):
+    poses_np = np.array(poses_6dof)  # 200,6
+    position = poses_np[:, 3:]  # xyz
 
+    fig = plt.figure(figsize=[8, 5])
+    ax = fig.gca()
+    ax.set_aspect('equal', adjustable='box')
+    ax.invert_xaxis()  # x 反方向
+    ax.set_xlabel('x')  # X不变
+    ax.set_ylabel('z')  # yz交换
+    plt.axis('equal')
+
+    i = 1
+    print(position.shape[0])
+    ax.plot(position[0, 0], position[0, 2],'r-*')  # 起点绿色
+    while i < position.shape[0]:
+        if i %args.interval_6dof==0:
+            ax.plot(position[i, 0], position[i, 2], 'g-*')
+            if i !=args.interval_6dof:
+                ax.plot(position[i-args.interval_6dof, 0], position[i-args.interval_6dof, 2], 'k-*')
+
+            plt.pause(args.dynamic_time_interval)
+        i += 1
+    #    i+=1
+
+    # 绘制起点,终点,其他点
+    #ax.plot(position[-1, 0], position[-1, 2],'g-*')  # 终点黄色
+    plt.pause(100)
 def dynamic_draw_6dof(poses_6dof):
     def update(i):
         label = 'timestep {0}'.format(i)
@@ -197,7 +228,7 @@ def dynamic_draw_6dof(poses_6dof):
 
         ax.quiver(position[i, 0], position[i, 2], position[i, 1],
                   orient_vec[i, 0], orient_vec[i, 2], orient_vec[i, 1],
-                  color=mycmap(roll[i]), norm=mynorm)
+                  color=mycmap(roll[i]), norm=mynorm,length = args.quiver_lenth)
 
         return fig, ax
 
@@ -253,7 +284,8 @@ def dynamic_draw_6dof(poses_6dof):
 
 
     pass
-
+def dynamic_draw_2dof_file(file):
+    pass
 def add_draw(fliename):
     """
     根据文件内容变化绘制点
@@ -270,6 +302,8 @@ if __name__ == '__main__':
 
     if args.output_style=='draw_2dof':
         draw_2dof(poses_6dof)
+    elif args.output_style=='dynamic_draw_2dof':
+        dynamic_draw_2dof(poses_6dof)
     elif args.output_style == 'draw_3dof':
         draw_3dof(poses_6dof)
     elif args.output_style == 'draw_6dof':

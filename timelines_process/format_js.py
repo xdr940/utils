@@ -2,7 +2,7 @@ import json
 from path import Path
 import argparse
 parser =argparse.ArgumentParser('None')
-parser.add_argument('--file',type=str,default='./timelines.json')
+parser.add_argument('--file',type=str,default='./10001000.json')
 args= parser.parse_args()
 #对原始的json文件处理时间,windows使用
 def writelines(frames,path):

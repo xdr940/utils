@@ -8,7 +8,7 @@ from CatmulRom.catmul import CatmulRom
 from  math import cos,acos,sin,asin,pi
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input_json",
-                    default="./data/0807.json"
+                    default="./data/10001000.json"
                     )
 parser.add_argument("--out_dir",default=None)
 

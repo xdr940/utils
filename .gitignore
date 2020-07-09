@@ -7,3 +7,4 @@ __pycache__
 *.avi
 *.mp4
 *.txt
+*.npy
