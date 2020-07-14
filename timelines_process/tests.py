@@ -1,3 +1,3 @@
+from  math import cos,acos,sin,asin,pi
 
-
-print(-100.4%360)
+print(asin(-1))

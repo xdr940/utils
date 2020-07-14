@@ -14,21 +14,25 @@ import argparse
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input",
                     help="as kitti formate that 12 dof",
-                    default="./10001000_poses/p2_.txt"
+                    default="./04001000_poses/p2p.txt"
+                    #default="./custom_vo/03_gt.txt"
+
                     )
 parser.add_argument("--output_style",
-                    default='dynamic_draw_2dof',
+                    default='draw_2dof',
                     choices=['draw_2dof',
                              'dynamic_draw_2dof',
+                             "dynamic_draw_2dof_outfile",
                              'draw_3dof',
                              'draw_6dof',
                              'dynamic_draw_6dof'])
 parser.add_argument("--azim_elev",default=[ -171,40  ],help='观察视角')
 parser.add_argument("--out_dir",default='out_dir')
 parser.add_argument('--interval_6dof',default=5)
-parser.add_argument('--dynamic_time_interval',default=0.5)
+parser.add_argument('--dynamic_time_interval',default=0.1)
 parser.add_argument('--quiver_lenth',default=0.02)
-parser.add_argument('--watch_matrix_file',default='./watch_matrix.txt')
+parser.add_argument('--global_scale_factor',default=20.)
+parser.add_argument('--watch_matrix_file',default='./watch_matrix.txt',help='for infer with drawing2d')
 
 args = parser.parse_args()
 
@@ -166,12 +170,12 @@ def draw_3dof(poses_6dof):#poses_6dof
     plt.show()
 def draw_2dof(poses_6dof):#poses_6dof
     poses_np = np.array(poses_6dof)#200,6
+    poses_np += np.random.rand()
     position = poses_np[:,3:]#xyz
 
     fig = plt.figure(figsize=[8, 5])
     ax = fig.gca()
     ax.set_aspect('equal', adjustable='box')
-    ax.invert_xaxis()  # x 反方向
     ax.set_xlabel('x')  # X不变
     ax.set_ylabel('z')  # yz交换
     plt.axis('equal')
@@ -183,12 +187,61 @@ def draw_2dof(poses_6dof):#poses_6dof
     #    i+=1
 
     # 绘制起点,终点,其他点
-    ax.scatter(position[0, 0], position[0, 2], position[0, 1], c='r')  # 起点绿色
-    ax.scatter(position[-1, 0], position[-1, 2], position[-1, 1], c='g')  # 终点黄色
+    ax.plot(position[0, 0], position[0, 2],  'ro')  # 起点绿色
+    ax.plot(position[-1, 0], position[-1, 2], 'go')  # 终点黄色
 
 
 
     plt.show()
+def dynamic_draw_2dof_outfile(poses_6dof):
+    def update(i):
+        label = 'timestep {0}'.format(i)
+        # print(label)
+        # 更新直线和x轴（用一个新的x轴的标签）。
+        # 用元组（Tuple）的形式返回在这一帧要被重新绘图的物体
+
+        ax.plot(position[:i, 0], position[:i, 2], 'k-*')
+
+
+        return fig, ax
+
+    poses_6dof_sub = []
+    cnt = 0
+    for pose in poses_6dof:
+        if cnt % args.interval_6dof == 0:
+            poses_6dof_sub.append(pose)
+        cnt += 1
+    poses_6dof = poses_6dof_sub
+    poses_6dof_np = np.array(poses_6dof)
+
+    # draw
+
+    position = poses_6dof_np[:, 3:]
+    if args.global_scale_factor:
+        position*=args.global_scale_factor
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_aspect('equal', adjustable='box')
+    # ax.yaxis.set_ticks_position('top')
+    ax.set_xlabel('X')  # X不变
+    ax.set_ylabel('z')  # yz交换
+
+    plt.axis('equal')
+    # 视角改变
+    ax.azim, ax.elev = args.azim_elev
+    ax.plot(position[0, 0], position[0, 2],'g-*')  # 起点绿色
+    ax.plot(position[-1, 0], position[-1, 2], 'r-*')
+
+    plt.title('Camera Ego-motion')
+    mycmap = plt.get_cmap('hsv', 100)
+
+    # save
+    anim = FuncAnimation(fig, update, frames=range(0, position.shape[0]), interval=200)
+    same_name = Path(args.input).relpath('./').strip('.txt').replace('/', '_') + '.mp4'
+    anim.save(same_name, dpi=80, writer='imagemagick')
+
+    pass
 
 def dynamic_draw_2dof(poses_6dof):
     poses_np = np.array(poses_6dof)  # 200,6
@@ -197,7 +250,6 @@ def dynamic_draw_2dof(poses_6dof):
     fig = plt.figure(figsize=[8, 5])
     ax = fig.gca()
     ax.set_aspect('equal', adjustable='box')
-    ax.invert_xaxis()  # x 反方向
     ax.set_xlabel('x')  # X不变
     ax.set_ylabel('z')  # yz交换
     plt.axis('equal')
@@ -208,6 +260,8 @@ def dynamic_draw_2dof(poses_6dof):
     while i < position.shape[0]:
         if i %args.interval_6dof==0:
             ax.plot(position[i, 0], position[i, 2], 'g-*')
+            #plt.text(x=50,y=50,s =str(i),ha = 'left',va='bottom',fontsize=22)
+            print(i)
             if i !=args.interval_6dof:
                 ax.plot(position[i-args.interval_6dof, 0], position[i-args.interval_6dof, 2], 'k-*')
 
@@ -310,5 +364,8 @@ if __name__ == '__main__':
         draw_6dof(poses_6dof)
     elif args.output_style == 'dynamic_draw_6dof':
         dynamic_draw_6dof(poses_6dof)
+    elif args.output_style =="dynamic_draw_2dof_outfile":
+        dynamic_draw_2dof_outfile(poses_6dof)
+
 
 

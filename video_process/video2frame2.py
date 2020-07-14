@@ -13,9 +13,9 @@ from tqdm import tqdm
 import cv2
 
 parser = argparse.ArgumentParser(description="Video2Frames converter")
-parser.add_argument('--input', default='/home/roit/datasets/custom_raw/0003.mp4', help="Input video file")
-parser.add_argument('--output', default='/home/roit/datasets/Binjiang/sequences', help="Output folder. If exists it will be removed")
-parser.add_argument('--skip',default=5)
+parser.add_argument('--input', default='/home/roit/datasets/custom_raw/0020.mp4', help="Input video file")
+parser.add_argument('--output', default='/home/roit/datasets/Binjiang/0021', help="Output folder. If exists it will be removed")
+parser.add_argument('--skip',default=3)
 parser.add_argument('--rotate', type=int, default=0, choices={0,90, 180, 270}, help="Rotate clock-wise output frames")
 parser.add_argument('--exifmodel', default=None, help="An example photo file to fill output meta-tags")
 parser.add_argument('--verbose', default=True, action='store_true', help="Enable verbose")

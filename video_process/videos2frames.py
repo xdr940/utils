@@ -12,12 +12,15 @@ from tqdm import tqdm
 import cv2
 
 parser = argparse.ArgumentParser(description="Video2Frames converter")
-parser.add_argument('--input', default='/home/roit/Desktop/show_videos', help="Input video file")
+parser.add_argument('--input', default='/home/roit/datasets/c302', help="Input video file")
 #parser.add_argument('--input', default='../data', help="Input video file")
 
 parser.add_argument('--output', default="out_frames", help="Output folder. If exists it will be removed")
 parser.add_argument('--maxframes', type=int, default=None, help="Output max number of frames")
 parser.add_argument('--verbose', default=True, action='store_true', help="Enable verbose")
+parser.add_argument('--skipDelta',default=5)
+parser.add_argument('--videos2frames_log',default='./videos2frames_log.txt')
+
 
 args = parser.parse_args()
 
@@ -39,7 +42,7 @@ def main():
 
     out_path.makedirs_p()
 
-    seqs = open('videos2frames_in.txt')
+    seqs = open(args.videos2frames_log)
     seq_names = []
     for line in seqs:
         if line[0] != '#':
@@ -50,7 +53,8 @@ def main():
     cap = cv2.VideoCapture()
     print('get {} sences'.format(len(in_path.files())))
     in_path.files('*.mp4').sort()
-    for file in tqdm(in_path.files('*.mp4')):
+    files = in_path.files('*.mp4')
+    for file in tqdm(files):
         if file.stem not in seq_names:
             continue
         cap.open(file)
@@ -65,9 +69,8 @@ def main():
         skipDelta = 0
         frameId = 0
 
-        if args.maxframes==None:
-            maxframes = frameCount
-            skipDelta = 1
+        if args.skipDelta:
+            skipDelta = args.skipDelta
         else:
             maxframes = args.maxframes
             skipDelta = int(frameCount / maxframes)  # 乡下取证

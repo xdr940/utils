@@ -4,12 +4,27 @@ import argparse
 import numpy as np
 import json
 import math
+from scipy.interpolate import interp1d
 from CatmulRom.catmul import CatmulRom
 from  math import cos,acos,sin,asin,pi
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input_json",
-                    default="./data/10001000.json"
+                    default="./04001000.json"
                     )
+parser.add_argument('--steps',
+                    default={
+                        'p1':1000,
+                        'p1p':1000,
+                        'p2':1000,
+                        'p2p':1000,
+                        'p3':5000,
+                        'p4':5000,
+                        'p5':1000,
+                        'p6':2000,
+                        'p6_2':2000,
+                        'p6_3':2000,
+                        'p7':1000
+                        })
 parser.add_argument("--out_dir",default=None)
 
 
@@ -61,7 +76,7 @@ class TimeLine():
         dict = json.loads(content)
         return dict
 
-    def interpolaration(self,key_frames_list):
+    def interpolaration(self,key_poses_7dof_np,steps):
         '''
             读取txt 然后进行插值， 并返回list
         :param path: "timelines_p1.txt"
@@ -69,41 +84,34 @@ class TimeLine():
         '''
         #timelines = readlines(path)
         #out_p = path.stem+'_.txt'
-        time = []
-        x = []
-        y = []
-        z = []
 
-        pitch = []
-        roll = []
-        yaw = []
-        no = []
-        cnt=0
-        for item in key_frames_list:
-            if cnt==len(key_frames_list)-1:
-                pass
-            time.append(item[0] )# time
-            pitch.append(item[1])
-            yaw.append(item[2])
-            roll.append(item[3])
+        time = key_poses_7dof_np[:,0]
+        pitch = key_poses_7dof_np[:,1]
+        yaw = key_poses_7dof_np[:,2]
+        roll = key_poses_7dof_np[:,3]
 
-            x.append(item[4])
-            y.append(item[5])
-            z.append(item[6])
-            cnt+=1
+        x = key_poses_7dof_np[:,4]
+        y = key_poses_7dof_np[:,5]
+        z = key_poses_7dof_np[:,6]
 
-        position = []
-        rotation = []
-        for item in zip(x, y, z):
-            position.append(item)
-        for item in zip(pitch, yaw, roll):
-            rotation.append(item)
 
-        ac = CatmulRom(alpha=0.5, n_step=50)
+        position = np.array([x,y,z]).transpose([1,0])
+        rotation = np.array([pitch,yaw,roll]).transpose([1,0])
 
-        position = ac.run3d(position)
-        rotation = ac.run3d(rotation)
-        poses = [rot + pos for rot,pos in zip(rotation,position)]
+        time_full = np.linspace(0, time.max(), time.max()/(steps/10) +1)
+        poses=[]
+        for item in [pitch,yaw,roll,x,y,z]:
+
+            interp = interp1d(time,item,kind='cubic')
+            item_full = interp(time_full)
+            poses.append(item_full)
+        poses = np.array(poses).transpose([1,0])
+
+        #ac = CatmulRom(alpha=0.5, n_step=steps)
+
+        #position = ac.run3d(position)
+        #rotation = ac.run3d(rotation)
+        #poses = [rot + pos for rot,pos in zip(rotation,position)]
         #np format
         #position = np.array(position)
         #rotation = np.array(rotation)
@@ -117,17 +125,18 @@ class TimeLine():
 
     def format2list(self,path_name):
         # path_name is a list
-        num_frames = len(path_name[0]['keyframes'])
+        num_frames = len(path_name[1]['keyframes'])
         traj_formated_dict = []
         frame = {}
         for i in range(num_frames):
             # frame['no'] = '{:07d}'.format(i)
             # frame['no'] = i
-
+            if i==45:
+                pass
             frame['time'] = path_name[1]['keyframes'][i]['time']
-            frame['pitch'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][1]%90
-            frame['yaw'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][0]%90
-            frame['roll'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][2]%90
+            frame['pitch'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][1]#%90
+            frame['yaw'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][0]#%90
+            frame['roll'] = path_name[1]['keyframes'][i]['properties']['camera:rotation'][2]#%90
 
             frame['x'] = path_name[1]['keyframes'][i]['properties']['camera:position'][0]
             frame['y'] = path_name[1]['keyframes'][i]['properties']['camera:position'][1]
@@ -138,9 +147,9 @@ class TimeLine():
         key_frames = []
         for frame in traj_formated_dict:
             frame_ = list(frame.values())
-            key_frames.append(frame_)
+            key_frames.append(np.array(frame_))
 
-
+        key_frames = np.array(key_frames)
         return key_frames
     def dof2matrix(self,poses):
         '''
@@ -180,7 +189,7 @@ class TimeLine():
             Rt = np.concatenate([R,t],axis=1)
             Rt = Rt.reshape(12)
             poses_format.append(Rt)
-
+        poses_format = np.array(poses_format)
         return  poses_format
     def matrix2dof(self,poses):
         poses_6dof =[]
@@ -205,18 +214,19 @@ class TimeLine():
         trajs = self.readjson(self.input_json)#读取原始json文件
 
         for traj_name in trajs:
+            if traj_name not in ['','none'] and traj_name in args.steps.keys():
+                steps = args.steps[traj_name]
+                key_poses_7dof_np = self.format2list(trajs[traj_name])#第一次格式化
+                names,poses_6dof = self.interpolaration(key_poses_7dof_np,steps)
+                print('ok')
+                poses_mat = self.dof2matrix(poses_6dof)#(n,3,4)
 
-            key_frames = self.format2list(trajs[traj_name])#第一次格式化
+                np.savetxt(self.out_dir/traj_name+'_6dof.txt',poses_6dof,delimiter=' ', fmt='%1.8e')
+                np.savetxt(self.out_dir/traj_name+'.txt',poses_mat,delimiter=' ', fmt='%1.8e')
 
 
-            names,poses_6dof = self.interpolaration(key_frames)
-            poses_mat = self.dof2matrix(poses_6dof)#(n,3,4)
-
-
-            save_as_txt(self.out_dir/traj_name+'_6dof.txt',poses_6dof,shape='6dof')
-            save_as_txt(self.out_dir/traj_name+'_.txt',poses_mat)
-
-
+            else:
+                continue
 
 
 

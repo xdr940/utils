@@ -110,15 +110,25 @@ def dof2matrix(poses):
 
 def matrix2dof(poses):
     poses_6dof =[]
-    for item in poses:
+    for idx,item in enumerate(poses):
         T11,T12,T13,T14,T21,T22,T23,T24,T31,T32,T33,T34 = item
 
 
         yaw = asin(T31)
+        if T32/(cos(yaw))>1:
+            pitch = -asin(1)
+        elif T32/(cos(yaw))<-1:
+            pitch = -asin(-1)
+        else:
+            pitch = -asin(T32/(cos(yaw)))
 
-        pitch = -asin(T32/(cos(yaw)))
+        if T21/cos(yaw)<-1:
+            roll = asin(-1.)
+        elif T21/cos(yaw)>1:
+            roll = asin(1.)
+        else:
+            roll = asin(T21/cos(yaw))
 
-        roll = asin(T21/cos(yaw))
 
         pitch =pitch/pi *360
         roll =roll/pi *360

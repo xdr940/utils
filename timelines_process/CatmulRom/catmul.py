@@ -176,9 +176,6 @@ class CatmulRom(object):
 
 
 
-
-
-
 def readlines(filename):
     """Read all the lines in a text file and return as a list
     """

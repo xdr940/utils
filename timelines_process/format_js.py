@@ -2,7 +2,21 @@ import json
 from path import Path
 import argparse
 parser =argparse.ArgumentParser('None')
-parser.add_argument('--file',type=str,default='./10001000.json')
+parser.add_argument('--file',type=str,default='./04001000.json')
+parser.add_argument('--dump_name',default='04001000.json')
+parser.add_argument('--ms_dict',
+                    default={
+                        'p1':1000,
+                        'p1p':1000,
+                        'p2':1000,
+                        'p2p':1000,
+                        'p3':5000,
+                        'p4':5000,
+                        'p5':2000,
+                        'p6':2000,
+                        'p6_2':2000,
+                        'p6_3':2000,
+                        'p7':5000})
 args= parser.parse_args()
 #对原始的json文件处理时间,windows使用
 def writelines(frames,path):
@@ -58,25 +72,31 @@ def format_js(p):
     print('format timelines')
     for key in dict.keys():
 #        dict.pop('')
-        if key!='':
+        if key not in ['','none'] and args.ms_dict[key]:
+            print(key)
             i =0
             slices =  dict[key][0]['keyframes']
             for slice in slices:#
-                slice['time'] = i*5000
-                slice['properties']['timestamp'] = i*5000
+                slice['time'] = i*args.ms_dict[key]
+                slice['properties']['timestamp'] = i*args.ms_dict[key]
                 i+=1
                 pass
             slices = dict[key][1]['keyframes']
             i=0
             for slice in slices:  #
-                slice['time'] = i * 5000
-                slice['properties']['timestamp'] = i*5000
+                slice['time'] = i * args.ms_dict[key]
+                slice['properties']['timestamp'] = i*args.ms_dict[key]
                 i += 1
                 pass
-    dict.pop('')
-    f =Path('format.json')
+        else:
+            continue
+#    dict.pop('')
+    if args.dump_name:
+        name =args.dump_name
+    else:
+        name = args.file
 
-    with open('format.json','w') as fp:
+    with open(name,'w') as fp:
         json.dump(dict,fp)
     pass
 
