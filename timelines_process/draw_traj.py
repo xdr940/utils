@@ -14,8 +14,8 @@ import argparse
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input",
                     help="as kitti formate that 12 dof",
-                    default="./04001000_poses/p2p.txt"
-                    #default="./custom_vo/03_gt.txt"
+                    #default="./04001000_poses/p2p.txt"
+                    default="./custom_vo/0020_int6.txt"
 
                     )
 parser.add_argument("--output_style",
