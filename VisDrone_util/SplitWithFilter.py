@@ -12,7 +12,7 @@ def parse_opt():
     parser = argparse.ArgumentParser(
         description='Simple testing funtion for Monodepthv2 models.')
 
-    parser.add_argument('--dataset_path', type=str,default='/home/roit/datasets/VisDrone2',help='path to a test image or folder of images')
+    parser.add_argument('--dataset_path', type=str,default='/970evo/home/roit/datasets/VisDrone2',help='path to a test image or folder of images')
     parser.add_argument("--splits",default='visdrone',help='output_dir')
     parser.add_argument('--out_path', type=str,default=None,help='path to a test image or folder of images')
     parser.add_argument("--num",default=None,type=str)
@@ -134,12 +134,11 @@ def VsdSeqSelect(opt):
         curvs = [npys[id] for id in ids]
         for curv in curvs:
             plt.plot(curv)
-        plt.legend(legends,fontsize=10)
         plt.xlabel('frame_num',fontsize=10)
         plt.ylabel('photometric error/ rho',fontsize=10)
         plt.plot(0.15*np.ones([1000]),'r-.')
         plt.plot(0.3*np.ones([1000]),'b-.')
-
+        plt.legend(legends, fontsize=10,loc = 'upper right')
 
     dataset_path = Path(opt.dataset_path)
     real_seqs_p = dataset_path.dirs()

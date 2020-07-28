@@ -6,7 +6,7 @@ class VisDrone_opts:
         self.parser = argparse.ArgumentParser(description='Simple testing funtion for Monodepthv2 models.')
 
         self.parser.add_argument('--dataset_path', type=str,
-                             default='/home/roit/datasets/VisDrone2',
+                             default='/970evo/home/roit/datasets/VisDrone2',
                             help='path to a test image or folder of images')
 
 
