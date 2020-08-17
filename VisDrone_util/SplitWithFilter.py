@@ -1,36 +1,13 @@
 
 from path import Path
 from random import shuffle
-import argparse
 import numpy as np
-from tqdm import  tqdm
-from utils import PhotometricErr,list_remove,StartEnd_remove
+from options import SplitWithFilter_opts
+from utils import PhotometricErr,list_remove
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
 
-def parse_opt():
-    parser = argparse.ArgumentParser(
-        description='Simple testing funtion for Monodepthv2 models.')
 
-    parser.add_argument('--dataset_path', type=str,default='/970evo/home/roit/datasets/VisDrone2',help='path to a test image or folder of images')
-    parser.add_argument("--splits",default='visdrone',help='output_dir')
-    parser.add_argument('--out_path', type=str,default=None,help='path to a test image or folder of images')
-    parser.add_argument("--num",default=None,type=str)
-    parser.add_argument("--proportion",default=[0.9,0.05,0.05],help="train, val, test")
-    parser.add_argument("--num_workers",default=12)
-    parser.add_argument("--batch_size",default=48)
-    parser.add_argument("--photometric_threshold",default=0.12)
-    parser.add_argument('--frame_idxs',default=[-3,0,3],help="frame interval settings")#由于有photometric err 控制了, 所以可以将frame interval 减小
-    parser.add_argument("--photometric_err_dir",default='./photometric_err')
-    parser.add_argument("--ext",default='.jpg')
-
-
-
-
-
-    parser.add_argument("--out_name",default=None)
-
-    return parser.parse_args()
 
 
 def writelines(list,path):
@@ -69,23 +46,32 @@ def VSD_PhotometricErrNpy_Output(opt):
 
     #
     dataset_path = Path(opt.dataset_path)
-    real_sequences_p = dataset_path.dirs()
-    real_sequences_p.sort()#
+    seqs_p = dataset_path.dirs()
+    seqs_p.sort()#
 
 
 
     photometric_errs=[]
     p=Pool(processes=opt.num_workers)
-    print('-> total {} sequences '.format(len(real_sequences_p)))
-    for real_seq in tqdm(real_sequences_p):
-        real_files = real_seq.files()
-        real_files.sort()
+    num_imgs=0
+    for seq_p in seqs_p:
+        num_imgs+=len(seq_p.files())
+    num_seqs = len(seqs_p)
+    print('-> total {} sequences, {}imgs '.format(num_seqs,num_imgs))
+    step = max(opt.frame_idxs)
+    for seq_p in seqs_p:
+        print(seq_p)
+        files = seq_p.files()
+        files.sort()
 
-        photometric_err = PhotometricErr(paths=real_files,pool=p,batch_size=opt.batch_size)
+        photometric_err = PhotometricErr(paths=files,pool=p,batch_size=opt.batch_size,step=step)
+        photometric_err = np.concatenate([photometric_err,-np.ones(step)])
+        print(photometric_err.shape)
+        print(photometric_err)
         photometric_errs.append(photometric_err)
         photometric_err = np.array(photometric_err)
 
-        np.save(photometric_err_dir/str(real_seq.stem)+'.npy',photometric_err)
+        np.save(photometric_err_dir/str(seq_p.stem)+'.npy',photometric_err)
     p.close()
 
 
@@ -99,7 +85,7 @@ def VsdSeqSelect(opt):
     :param opt:
     :return:
     '''
-    shows=True
+    shows=False
     [train_, val_, test_] = opt.proportion
 
     if train_ + val_ + test_ - 1. > 0.01:  # delta
@@ -119,15 +105,19 @@ def VsdSeqSelect(opt):
     npys_p = photometric_err_dir.files()
     npys_p.sort()
     npys=[]
-    photometric_errs =[]
+    select_vec =[]
+    mean_npy=[]
     for npy_p in npys_p:
         npy = np.load(npy_p)
         npys.append(npy)
-        npy_bool  = np.uint8(npy > opt.photometric_threshold)
+        print(npy_p.stem)
+        mean_npy.append(npy.mean())
 
-        ls = list(npy_bool)
-        photometric_errs.append(ls)
+        npy_bool  = ((npy > opt.photometric_threshold[0])*( npy < opt.photometric_threshold[1]))
 
+        #npy_bool = list(npy_bool)
+        select_vec.append(npy_bool)
+    print("---\n")
     if shows:
         ids = [0,20,40]
         legends = [npys_p[id].stem for id in ids]
@@ -148,14 +138,16 @@ def VsdSeqSelect(opt):
     rel_paths_seqs =[]
 
 
-    for real_seq_p ,select_idx in zip(real_seqs_p,photometric_errs):
+    for real_seq_p ,select_idx in zip(real_seqs_p,select_vec):
         full_files_real_paths = real_seq_p.files()
         full_files_real_paths.sort()
         full_len = len(full_files_real_paths)
 
         print(real_seq_p.stem)
-        real_paths = list_remove(full_files_real_paths,select_idx)#photometric filtering
-        real_paths = StartEnd_remove(real_paths,full_len,frame_interval=opt.frame_idxs[2])
+        if real_seq_p.stem =='uav0000240_00001_s':
+            pass
+        #real_paths = StartEnd_remove(select_idx,full_len,frame_interval=opt.frame_idxs)#掐头去尾
+        real_paths = list_remove(full_files_real_paths,select_idx,frame_interval=opt.frame_idxs)#photometric filtering
 
         rel_paths_seq = [real_path.relpath(opt.dataset_path).strip(opt.ext) for real_path in real_paths]
         print('->full frames:{}, filtered frames:{}'.format(full_len,len(rel_paths_seq)))
@@ -177,6 +169,8 @@ def VsdSeqSelect(opt):
     writelines(rel_paths_seqs[train_bound:val_bound],val_txt_p)
     writelines(rel_paths_seqs[val_bound:test_bound],test_txt_p)
 
+    plt.plot(mean_npy,"r-o")
+    plt.show()
 
 
 
@@ -185,9 +179,9 @@ def VsdSeqSelect(opt):
 
 
 if  __name__ == '__main__':
-    options = parse_opt()
-    #VSD_PhotometricErrNpy_Output(options)
-    VsdSeqSelect(options)
+    options = SplitWithFilter_opts().args()
+    VSD_PhotometricErrNpy_Output(options)
+    #VsdSeqSelect(options)
 
 
 

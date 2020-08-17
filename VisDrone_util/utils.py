@@ -6,6 +6,7 @@ import  torch.nn as nn
 from PIL import Image  # using pillow-simd for increased speed
 from torchvision import transforms
 from tqdm import  tqdm
+import math
 class SSIM(nn.Module):
     """Layer to compute the SSIM loss between a pair of images
     """
@@ -23,6 +24,7 @@ class SSIM(nn.Module):
         self.C2 = 0.03 ** 2
 
     def forward(self, x, y):
+
         x = self.refl(x)
         y = self.refl(y)
 
@@ -40,21 +42,29 @@ class SSIM(nn.Module):
 
 
 
-def PhotometricErr(paths,pool,batch_size):
+def PhotometricErr(paths,pool,batch_size,step):
 
     ret_list =[]
     ssim = SSIM().cuda()
 
 
-
-    epoch = int(len(paths)/batch_size)+1
+    epoch = math.ceil(len(paths)/batch_size)
     for i in tqdm(range(0,epoch)):
 
         if i==epoch-1:#last batch,
-            rear_files = paths[i*batch_size:]
-            front_files=paths[i*batch_size-1:-1]
+            residue = len(paths )% batch_size
+            if residue==0:
+                front_files = paths[i * batch_size:-step]
+                rear_files = paths[i * batch_size + step:]
+            elif step > residue:
+                break
+            elif step <= residue :
+                residue_comp = residue-step
+
+                front_files = paths[i*batch_size:i*batch_size + residue_comp]
+                rear_files=paths[i*batch_size+step:]
         else:
-            rear_files = paths[i*batch_size+1:i*batch_size+1+batch_size]
+            rear_files = paths[i*batch_size+step:i*batch_size+step+batch_size]
             front_files =  paths[i*batch_size:i*batch_size+batch_size]
 
         #with Pool(processes=3) as p:
@@ -64,6 +74,13 @@ def PhotometricErr(paths,pool,batch_size):
         front_batch = torch.cat(front_imgs,dim=0)
         rear_batch= torch.cat(rear_imgs,dim=0)
 
+
+        if front_batch.shape != rear_batch.shape:
+            bx, _, _, _ = front_batch.shape
+            by, _, _, _ = rear_batch.shape
+            b = min(bx, by)
+            front_batch = front_batch[:b, ]
+            rear_batch = rear_batch[:b, ]
 
 
 
@@ -94,13 +111,19 @@ def imgload(path):#1,3,h,w
 
 
 
-def list_remove(arr,idxs):
+def list_remove(arr,idxs,frame_interval):
     '''
     根据idxs的 true false 进行筛除
     :param arr:
     :param idxs:
     :return:
     '''
+
+    step = max(frame_interval)
+    idxs[:step] = 0
+    idxs[-step:] = 0
+
+
     for i in range(len(idxs)):
         if idxs[i] == 0:
             arr[i] = ''
@@ -110,19 +133,4 @@ def list_remove(arr,idxs):
 
     return arr
 
-def StartEnd_remove(real_paths,full_lenth,frame_interval):
-    '''
-    以防出现-0000001.jpg的情况
-    :param arr:
-    :return:
-    '''
-
-    for i in range(len(real_paths)):
-        frame_num =int(real_paths[i].stem)
-        if frame_num<frame_interval+1 or frame_num> full_lenth-frame_interval :
-            real_paths[i]=''
-
-    while '' in real_paths:
-        real_paths.remove('')
-    return  real_paths
 
