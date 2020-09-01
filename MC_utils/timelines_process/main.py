@@ -9,13 +9,14 @@ from CatmulRom.catmul import CatmulRom
 from  math import cos,acos,sin,asin,pi
 parser = argparse.ArgumentParser(description='KITTI evaluation')
 parser.add_argument("--input_json",
-                    default="./04001000.json"
+                    default="jsons/0000.json"
                     )
 parser.add_argument('--steps',
+                    help='ms, 不同路径名字对应着不同帧时间',
                     default={
-                        'p1':1000,
+                        'p1':5000,
                         'p1p':1000,
-                        'p2':1000,
+                        'p2':5000,
                         'p2p':1000,
                         'p3':5000,
                         'p4':5000,
@@ -205,7 +206,12 @@ class TimeLine():
 
         return poses_6dof
 
+    def timestamp(self,length,ms=100):
+        pass
 
+        ret = np.linspace(num=length,start=0,stop=(length-1)*ms)
+        ret = np.expand_dims(ret,axis=1)
+        return  ret
 
 
 
@@ -218,12 +224,13 @@ class TimeLine():
                 steps = args.steps[traj_name]
                 key_poses_7dof_np = self.format2list(trajs[traj_name])#第一次格式化
                 names,poses_6dof = self.interpolaration(key_poses_7dof_np,steps)
+                full_times = self.timestamp(length = poses_6dof.shape[0],ms = 100)
                 print('ok')
                 poses_mat = self.dof2matrix(poses_6dof)#(n,3,4)
 
                 np.savetxt(self.out_dir/traj_name+'_6dof.txt',poses_6dof,delimiter=' ', fmt='%1.8e')
                 np.savetxt(self.out_dir/traj_name+'.txt',poses_mat,delimiter=' ', fmt='%1.8e')
-
+                np.savetxt(self.out_dir/traj_name+'_times.txt',full_times,delimiter='',fmt='%1.8e')
 
             else:
                 continue
